@@ -9,7 +9,7 @@
  * @retval 0 en caso de exito.
  * @retval -1 en caso de error.
  */
-int init();
+int init()
 
 /**
  * @brief Este servicio inserta el elemento <key, value1, value2>. El vector correspondiente al valor
