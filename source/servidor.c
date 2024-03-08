@@ -1,9 +1,9 @@
+#include "clavesservidor.h"
+#include "mensaje.h"
 #include <mqueue.h>
 #include <pthread.h>
-#include <stdio.h>
-
-#include "mensaje.h"
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 
 /* mutex y variables condicionales para proteger la copia del mensaje*/
@@ -30,31 +30,28 @@ void tratar_mensaje(void *mess) {
   pthread_mutex_unlock(&mutex_mensaje);
 
   /* ejecutar la petición del cliente y preparar respuesta */
-  if (mensaje.op == 0)
-    resultado = mensaje.a + mensaje.b;
-  else
-    resultado = mensaje.a - mensaje.b;
   switch (mensaje.op) {
   case 0:
-    init();
+    init_serv();
     break;
   case 1:
-    set_value(mensaje.key, mensaje.value1, mensaje.int_value2,
-              mensaje.v_value2) break;
+    set_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
+                   mensaje.V_value2);
+    break;
 
   case 2:
-    get_value(mensaje.key, mensaje.value1, mensaje.int_value2,
-              mensaje.v_value2);
+    get_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
+                   mensaje.V_value2);
     break;
   case 3:
-    modify_value(mensaje.key, mensaje.value1, mensaje.int_value2,
-                 mensaje.v_value2);
+    modify_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
+                      mensaje.V_value2);
     break;
   case 4:
-    delete_value(mensaje.key);
+    delete_value_serv(mensaje.key);
     break;
   default:
-    exist(mensaje.key);
+    exists_serv(mensaje.key);
     break;
   }
   /* Se devuelve el resultado al cliente */
