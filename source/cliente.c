@@ -21,3 +21,10 @@ int main() {
   exist(59);
   return 0;  // Indicate successful execution
 }
+
+/*
+gcc -c -fPIC claves.c -o claves.o
+gcc -shared -o libclaves.so claves.o
+gcc cliente.c libclaves.so -o cliente
+./cliente
+*/
