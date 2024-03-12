@@ -1,6 +1,7 @@
 #ifndef CLAVES_H
 #define CLAVES_H
 
+
 /**
  * @brief Esta llamada permite inicializar el servicio de elementos
  * clave-valor1-valor2. Mediante este servicio se destruyen todas las tuplas que

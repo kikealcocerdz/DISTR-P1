@@ -11,3 +11,6 @@ int delete_value_serv(int key);
 int exists_serv(int key);
 
 #endif // CLAVES_H
+
+
+//USAR gcc clavesservidor.c servidor.c -o servidor
