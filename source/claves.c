@@ -14,29 +14,38 @@
 #define MAX_LEN 20 // Add this line to define the size of 'colalocal'
 
 int init() {
+
+  printf("Inicialización empezada\n");
   mqd_t q_servidor; /* cola de mensajes del servidor */
   mqd_t q_cliente;  /* cola de mensajes del cliente */
+
   struct peticion pet;
   struct respuesta res; /* respuesta de la operación */
-  struct mq_attr attr;  // Add this line to declare the 'attr' variable
-  attr.mq_maxmsg = 10;
+  struct mq_attr attr;  // Declare the 'attr' variable here
+  char colalocal[MAXSIZE]; 
+
+  // Initialize 'attr' before using it
+  attr.mq_maxmsg = 10;     
+	attr.mq_msgsize = sizeof(int);
+
   // CREACION DE LA COLA DE MENSAJES,PONGO EL PID POR SI HAY VARIOS CLIENTES A
   // LA VEZ
-  char colalocal[MAX_LEN]; // Add MAX_LEN to define the size of 'colalocal'
-  pid_t pid = getpid();    // Obtención del PID
-  snprintf(colalocal, MAX_LEN, "COLA%d", (int)pid);
-  attr.mq_msgsize = sizeof(struct peticion);
-  q_cliente = mq_open(colalocal, O_CREAT | O_RDONLY, 0700, &attr);
+
+	sprintf(colalocal,  "/Cola-%d", getpid());
+  q_cliente = mq_open(colalocal, O_CREAT|O_RDONLY, 0700, &attr);
   if (q_cliente == -1) {
-    perror("mq_open");
+    perror("mq_open CLIENTE");
     return -1;
   }
-  q_servidor = mq_open("colaservidor.txt", O_WRONLY);
+  printf("Colas cliente creadas\n");
+
+  q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
     mq_close(q_cliente);
-    perror("mq_open");
+    perror("mq_open SERVIDOR");
     return -1;
   }
+  printf("Cola servidor creadas\n");
 
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
@@ -46,11 +55,15 @@ int init() {
     perror("mq_send");
     return -1;
   }
+
+  printf("Mensaje enviado\n");
   // RECIBIMOS EL MENSAJE
   if (mq_receive(q_cliente, (char *)&res, sizeof(int), 0) < 0) {
     perror("mq_recv");
     return -1;
   }
+  printf("Mensaje recibido\n");
+
   // CERRAMOS LAS COLAS
   mq_close(q_servidor);
   mq_close(q_cliente);
@@ -59,28 +72,38 @@ int init() {
 }
 
 int set_value(int key, char *value1, int N_value2, double *V_value2) {
+
+  printf("SetValue empezado\n");
   mqd_t q_servidor; /* cola de mensajes del servidor */
   mqd_t q_cliente;  /* cola de mensajes del cliente */
+
   struct peticion pet;
   struct respuesta res; /* respuesta de la operación */
-  struct mq_attr attr;  // Add this line to declare the 'attr' variable
-  attr.mq_maxmsg = 10;
-  // CREACION DE LA COLA DE MENSAJES
-  char colalocal[MAX_LEN]; // Add MAX_LEN to define the size of 'colalocal'
-  pid_t pid = getpid();    // Obtención del PID
-  snprintf(colalocal, MAX_LEN, "COLA%d", (int)pid);
-  attr.mq_msgsize = sizeof(struct peticion);
-  q_cliente = mq_open(colalocal, O_CREAT | O_RDONLY, 0700, &attr);
+  struct mq_attr attr;  // Declare the 'attr' variable here
+  char colalocal[MAXSIZE]; 
+
+  // Initialize 'attr' before using it
+  attr.mq_maxmsg = 10;     
+	attr.mq_msgsize = sizeof(int);
+
+  // CREACION DE LA COLA DE MENSAJES,PONGO EL PID POR SI HAY VARIOS CLIENTES A
+  // LA VEZ
+
+	sprintf(colalocal,  "/Cola-%d", getpid());
+  q_cliente = mq_open(colalocal, O_CREAT|O_RDONLY, 0700, &attr);
   if (q_cliente == -1) {
-    perror("mq_open");
+    perror("mq_open CLIENTE");
     return -1;
   }
-  q_servidor = mq_open("colaservidor.txt", O_WRONLY);
+  printf("Colas cliente creadas\n");
+
+  q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
     mq_close(q_cliente);
-    perror("mq_open");
+    perror("mq_open SERVIDOR");
     return -1;
   }
+  printf("Cola servidor creadas\n");
 
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
@@ -107,36 +130,44 @@ int set_value(int key, char *value1, int N_value2, double *V_value2) {
 }
 
 int get_value(int key, char *value1, int *N_value2, double *V_value2) {
+  printf("GetValue empezado\n");
   mqd_t q_servidor; /* cola de mensajes del servidor */
   mqd_t q_cliente;  /* cola de mensajes del cliente */
+
   struct peticion pet;
-  struct respuesta res;
-  struct mq_attr attr; // Add this line to declare the 'attr' variable
+  struct respuesta res; /* respuesta de la operación */
+  struct mq_attr attr;  // Declare the 'attr' variable here
+  char colalocal[MAXSIZE]; 
 
-  // CREACION DE LA COLA DE MENSAJES
-  char colalocal[MAX_LEN]; // Definición de la variable local
-  pid_t pid = getpid();    // Obtención del PID
-  snprintf(colalocal, MAX_LEN, "COLA%d", (int)pid);
+  // Initialize 'attr' before using it
+  attr.mq_maxmsg = 10;     
+	attr.mq_msgsize = sizeof(int);
 
-  q_cliente = mq_open(colalocal, O_CREAT | O_RDONLY, 0700, &attr);
+  // CREACION DE LA COLA DE MENSAJES,PONGO EL PID POR SI HAY VARIOS CLIENTES A
+  // LA VEZ
+
+	sprintf(colalocal,  "/Cola-%d", getpid());
+  q_cliente = mq_open(colalocal, O_CREAT|O_RDONLY, 0700, &attr);
   if (q_cliente == -1) {
-    perror("mq_open");
+    perror("mq_open CLIENTE");
     return -1;
   }
+  printf("Colas cliente creadas\n");
 
-  q_servidor = mq_open("colaservidor.txt", O_WRONLY);
+  q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
     mq_close(q_cliente);
-    perror("mq_open");
+    perror("mq_open SERVIDOR");
     return -1;
   }
+  printf("Cola servidor creadas\n");
 
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
   pet.op = 2;
   pet.key = key;
   strcpy(pet.value1, value1);
-  pet.N_value2 = N_value2;
+  pet.N_value2 = *N_value2;
   memcpy(pet.V_value2, V_value2, sizeof(V_value2));
   // ENVIAMOS EL MENSAJE
   if (mq_send(q_servidor, (const char *)&pet, sizeof(pet), 0) < 0) {
@@ -160,29 +191,37 @@ int get_value(int key, char *value1, int *N_value2, double *V_value2) {
 }
 
 int modify_value(int key, char *value1, int N_value2, double *V_value2) {
+  printf("ModifyValue empezado\n");
   mqd_t q_servidor; /* cola de mensajes del servidor */
   mqd_t q_cliente;  /* cola de mensajes del cliente */
+
   struct peticion pet;
   struct respuesta res; /* respuesta de la operación */
-  struct mq_attr attr;  // Add this line to declare the 'attr' variable
-  attr.mq_maxmsg = 10;
-  // CREACION DE LA COLA DE MENSAJES
-  char colalocal[MAX_LEN]; // Add MAX_LEN to define the size of 'colalocal'
-  pid_t pid = getpid();    // Obtención del PID
-  snprintf(colalocal, MAX_LEN, "COLA%d", (int)pid);
-  attr.mq_msgsize = sizeof(struct peticion);
-  q_cliente = mq_open(colalocal, O_CREAT | O_RDONLY, 0700, &attr);
+  struct mq_attr attr;  // Declare the 'attr' variable here
+  char colalocal[MAXSIZE]; 
+
+  // Initialize 'attr' before using it
+  attr.mq_maxmsg = 10;     
+	attr.mq_msgsize = sizeof(int);
+
+  // CREACION DE LA COLA DE MENSAJES,PONGO EL PID POR SI HAY VARIOS CLIENTES A
+  // LA VEZ
+
+	sprintf(colalocal,  "/Cola-%d", getpid());
+  q_cliente = mq_open(colalocal, O_CREAT|O_RDONLY, 0700, &attr);
   if (q_cliente == -1) {
-    perror("mq_open");
+    perror("mq_open CLIENTE");
     return -1;
   }
-  q_servidor = mq_open("colaservidor.txt", O_WRONLY);
+  printf("Colas cliente creadas\n");
+
+  q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
     mq_close(q_cliente);
-    perror("mq_open");
+    perror("mq_open SERVIDOR");
     return -1;
   }
-
+  printf("Cola servidor creadas\n");
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
   pet.op = 3;
@@ -208,28 +247,37 @@ int modify_value(int key, char *value1, int N_value2, double *V_value2) {
 }
 
 int delete_key(int key) {
+    printf("DeleteKey empezado\n");
   mqd_t q_servidor; /* cola de mensajes del servidor */
   mqd_t q_cliente;  /* cola de mensajes del cliente */
+
   struct peticion pet;
   struct respuesta res; /* respuesta de la operación */
-  struct mq_attr attr;  // Add this line to declare the 'attr' variable
-  attr.mq_maxmsg = 10;
-  // CREACION DE LA COLA DE MENSAJES
-  char colalocal[MAX_LEN]; // Add MAX_LEN to define the size of 'colalocal'
-  pid_t pid = getpid();    // Obtención del PID
-  snprintf(colalocal, MAX_LEN, "COLA%d", (int)pid);
-  attr.mq_msgsize = sizeof(struct peticion);
-  q_cliente = mq_open(colalocal, O_CREAT | O_RDONLY, 0700, &attr);
+  struct mq_attr attr;  // Declare the 'attr' variable here
+  char colalocal[MAXSIZE]; 
+
+  // Initialize 'attr' before using it
+  attr.mq_maxmsg = 10;     
+	attr.mq_msgsize = sizeof(int);
+
+  // CREACION DE LA COLA DE MENSAJES,PONGO EL PID POR SI HAY VARIOS CLIENTES A
+  // LA VEZ
+
+	sprintf(colalocal,  "/Cola-%d", getpid());
+  q_cliente = mq_open(colalocal, O_CREAT|O_RDONLY, 0700, &attr);
   if (q_cliente == -1) {
-    perror("mq_open");
+    perror("mq_open CLIENTE");
     return -1;
   }
-  q_servidor = mq_open("colaservidor.txt", O_WRONLY);
+  printf("Colas cliente creadas\n");
+
+  q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
     mq_close(q_cliente);
-    perror("mq_open");
+    perror("mq_open SERVIDOR");
     return -1;
   }
+  printf("Cola servidor creadas\n");
 
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
@@ -254,29 +302,37 @@ int delete_key(int key) {
 }
 
 int exist(int key) {
+  printf("Exist empezado\n");
   mqd_t q_servidor; /* cola de mensajes del servidor */
   mqd_t q_cliente;  /* cola de mensajes del cliente */
+
   struct peticion pet;
   struct respuesta res; /* respuesta de la operación */
-  struct mq_attr attr;  // Add this line to declare the 'attr' variable
-  attr.mq_maxmsg = 10;
-  // CREACION DE LA COLA DE MENSAJES
-  char colalocal[MAX_LEN]; // Add MAX_LEN to define the size of 'colalocal'
-  pid_t pid = getpid();    // Obtención del PID
-  snprintf(colalocal, MAX_LEN, "COLA%d", (int)pid);
-  attr.mq_msgsize = sizeof(struct peticion);
-  q_cliente = mq_open(colalocal, O_CREAT | O_RDONLY, 0700, &attr);
+  struct mq_attr attr;  // Declare the 'attr' variable here
+  char colalocal[MAXSIZE]; 
+
+  // Initialize 'attr' before using it
+  attr.mq_maxmsg = 10;     
+	attr.mq_msgsize = sizeof(int);
+
+  // CREACION DE LA COLA DE MENSAJES,PONGO EL PID POR SI HAY VARIOS CLIENTES A
+  // LA VEZ
+
+	sprintf(colalocal,  "/Cola-%d", getpid());
+  q_cliente = mq_open(colalocal, O_CREAT|O_RDONLY, 0700, &attr);
   if (q_cliente == -1) {
-    perror("mq_open");
+    perror("mq_open CLIENTE");
     return -1;
   }
-  q_servidor = mq_open("colaservidor.txt", O_WRONLY);
+  printf("Colas cliente creadas\n");
+
+  q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
     mq_close(q_cliente);
-    perror("mq_open");
+    perror("mq_open SERVIDOR");
     return -1;
   }
-
+  printf("Cola servidor creadas\n");
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
   pet.op = 5;

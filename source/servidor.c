@@ -63,6 +63,7 @@ int main(void) {
     attr.mq_maxmsg = 10;
     attr.mq_msgsize = sizeof(struct peticion);
 
+    printf("Servidor open\n");
     q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_RDONLY, 0700, &attr);
     if (q_servidor == -1) {
         perror("mq_open");
@@ -74,8 +75,9 @@ int main(void) {
             perror("mq_receive");
             return -1;
         }
-
+        printf("Mensaje recibido %d \n", mess.op);
         tratar_mensaje(&mess);
+        printf("Mensaje tratado\n");
     }
 
     return 0;

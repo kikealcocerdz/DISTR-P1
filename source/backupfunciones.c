@@ -42,7 +42,7 @@ int set_value_serv(int key, char *value1, int N_value2, double *V_value2) {
 }
 
 int get_value_serv(int key, char *value1, int N_value2, double *V_value2) {
-  claves = open("claves.txt", "r");
+  claves = fopen("claves.txt", "r");
   if (claves == NULL) {
     return -1; // Error al abrir el archivo
   }
@@ -87,6 +87,7 @@ int delete_value_serv(int key) {
   fclose(claves);
   return -1; // Clave no encontrada
 }
+
 int exists_serv(int key) {
   claves = open("claves.txt", "r");
   if (claves == NULL) {
