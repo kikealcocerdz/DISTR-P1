@@ -37,7 +37,7 @@ void tratar_mensaje(void *mess) {
     break;
   case 1:
     set_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
-                   mensaje.V_value2);
+                   mensaje.V_value2, mensaje.q_name);
     break;
 
   case 2:

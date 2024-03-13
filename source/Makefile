@@ -1,20 +1,15 @@
-CC = gcc
-CFLAGS = -Wall -g
-LIBS = -lrt
+# Makefile for building cliente, servidor, and libclaves.so
 
-all: libclaves.so servidor cliente
+all: cliente servidor
+
+servidor: clavesservidor.c servidor.c
+	gcc clavesservidor.c servidor.c -o servidor
 
 libclaves.so: claves.o
-	$(CC) -shared -o libclaves.so claves.o
+	gcc -shared -o libclaves.so claves.o
 
-servidor: servidor.o libclaves.so
-	$(CC) $(CFLAGS) -o servidor servidor.o -L. -lclaves $(LIBS)
-
-cliente: cliente.o libclaves.so
-	$(CC) $(CFLAGS) -o cliente cliente.o -L. -lclaves $(LIBS)
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+claves.o: claves.c
+	gcc -c -fPIC claves.c -o claves.o
 
 clean:
-	rm -f *.o servidor cliente libclaves.so
+	rm -f cliente servidor libclaves.so *.o

@@ -18,7 +18,7 @@ int N_value2;
 double V_value2[100];
 
 int init_serv() {
-    FILE *claves = fopen("claves.txt", "w");
+    FILE *claves = fopen("claves.txt", "w+");
     if (claves == NULL) {
         perror("Error al abrir el archivo");
         return -1;  // Error al abrir el archivo
@@ -34,8 +34,8 @@ int init_serv() {
 }
 
 
-int set_value_serv(int key, char *value1, int N_value2, double *V_value2) {
-    FILE *clavesFile = fopen("claves.txt", "a");
+int set_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente) {
+    FILE *clavesFile = fopen(clavescliente, "a+");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
         return -1; // Error al abrir el archivo
