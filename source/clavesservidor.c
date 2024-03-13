@@ -7,6 +7,9 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdlib.h>
 
 int claves;
 int key_leida;
@@ -122,10 +125,6 @@ int modify_value_serv(int key, char *value1, int N_value2, double *V_value2) {
     return -1; // Clave no encontrada
 }
 
-
-#include <stdio.h>
-#include <string.h>
-
 int delete_value_serv(int key) {
     FILE *clavesFile = fopen("claves.txt", "r+");
     if (clavesFile == NULL) {
@@ -157,8 +156,6 @@ int delete_value_serv(int key) {
     printf("Eliminación exitosa\n");
     return 0; // Eliminación exitosa
 }
-
-#include <stdio.h>
 
 int exists_serv(int key) {
     FILE *clavesFile = fopen("claves.txt", "r");
