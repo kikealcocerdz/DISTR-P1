@@ -10,6 +10,7 @@ struct peticion {
   char q_name[MAXSIZE]; /* nombre de la cola de respuesta */
   int resultado; /* resultado de la operación ,esdecir si ha salido bien o no (0
                     o -1)*/
+  char claves[MAXSIZE]; /* nombre de la cola de cliente */
 };
 
 struct respuesta {

@@ -33,26 +33,26 @@ void tratar_mensaje(void *mess) {
   /* ejecutar la petición del cliente y preparar respuesta */
   switch (mensaje.op) {
   case 0:
-    init_serv();
+    init_serv(mensaje.claves);
     break;
   case 1:
     set_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
-                   mensaje.V_value2, mensaje.q_name);
+                   mensaje.V_value2, mensaje.claves);
     break;
 
   case 2:
     get_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
-                   mensaje.V_value2);
+                   mensaje.V_value2, mensaje.claves);
     break;
   case 3:
     modify_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
-                      mensaje.V_value2);
+                      mensaje.V_value2, mensaje.claves);
     break;
   case 4:
-    delete_value_serv(mensaje.key);
+    delete_value_serv(mensaje.key, mensaje.claves);
     break;
   default:
-    exists_serv(mensaje.key);
+    exists_serv(mensaje.key, mensaje.claves);
     break;
   }
   /* Se devuelve el resultado al cliente */

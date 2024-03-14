@@ -17,7 +17,7 @@ char valor1[100];
 int N_value2;
 double V_value2[100];
 
-int init_serv() {
+int init_serv(char *clavescliente) {
     FILE *claves = fopen("claves.txt", "w+");
     if (claves == NULL) {
         perror("Error al abrir el archivo");
@@ -35,6 +35,7 @@ int init_serv() {
 
 
 int set_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente) {
+    printf("%c \n", clavescliente);
     FILE *clavesFile = fopen(clavescliente, "a+");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
@@ -60,7 +61,7 @@ int set_value_serv(int key, char *value1, int N_value2, double *V_value2, char *
     return 0; // Inserción exitosa
 }
 
-int get_value_serv(int key, char *value1, int N_value2, double *V_value2)  {
+int get_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente)  {
     FILE *clavesFile = fopen("claves.txt", "r");
     if (clavesFile == NULL) {
         return -1; // Error al abrir el archivo
@@ -89,7 +90,7 @@ int get_value_serv(int key, char *value1, int N_value2, double *V_value2)  {
 }
 
 
-int modify_value_serv(int key, char *value1, int N_value2, double *V_value2) {
+int modify_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente) {
     FILE *clavesFile = fopen("claves.txt", "r+");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
@@ -125,7 +126,7 @@ int modify_value_serv(int key, char *value1, int N_value2, double *V_value2) {
     return -1; // Clave no encontrada
 }
 
-int delete_value_serv(int key) {
+int delete_value_serv(int key, char *clavescliente) {
     FILE *clavesFile = fopen("claves.txt", "r+");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
@@ -157,7 +158,7 @@ int delete_value_serv(int key) {
     return 0; // Eliminación exitosa
 }
 
-int exists_serv(int key) {
+int exists_serv(int key,  char *clavescliente) {
     FILE *clavesFile = fopen("claves.txt", "r");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
