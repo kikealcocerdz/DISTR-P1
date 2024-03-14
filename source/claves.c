@@ -14,8 +14,6 @@
 #define MAX_LEN 20 // Add this line to define the size of 'colalocal'
 
 int init() {
-
-  printf("Inicialización empezada\n");
   mqd_t q_servidor; /* cola de mensajes del servidor */
   mqd_t q_cliente;  /* cola de mensajes del cliente */
 
@@ -75,7 +73,6 @@ int init() {
 }
 
 int set_value(int key, char *value1, int N_value2, double *V_value2) {
-  printf("SetValue empezado\n");
   mqd_t q_servidor; /* cola de mensajes del servidor */
   mqd_t q_cliente;  /* cola de mensajes del cliente */
 

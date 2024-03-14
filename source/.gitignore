@@ -1,0 +1,14 @@
+# Ignorar archivos y directorios generados por el sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de respaldo
+*~
+
+# Ignorar archivos de compilación
+*.o
+*.out
+*.txt
+
+# Ignorar directorios de dependencias
+/node_modules

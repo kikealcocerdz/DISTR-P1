@@ -18,14 +18,14 @@ int N_value2;
 double V_value2[100];
 
 int init_serv(char *clavescliente) {
-    FILE *claves = fopen("claves.txt", "w+");
+    FILE *claves = fopen(clavescliente, "w+");
     if (claves == NULL) {
         perror("Error al abrir el archivo");
         return -1;  // Error al abrir el archivo
     }
     fclose(claves);
     // Truncate the file using the truncate system call
-    if (truncate("claves.txt", 0) == -1) {
+    if (truncate(clavescliente, 0) == -1) {
         perror("Error al truncar el archivo");
         return -1;  // Error al truncar el archivo
     }
@@ -35,7 +35,6 @@ int init_serv(char *clavescliente) {
 
 
 int set_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente) {
-    printf("%c \n", clavescliente);
     FILE *clavesFile = fopen(clavescliente, "a+");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
@@ -62,7 +61,7 @@ int set_value_serv(int key, char *value1, int N_value2, double *V_value2, char *
 }
 
 int get_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente)  {
-    FILE *clavesFile = fopen("claves.txt", "r");
+    FILE *clavesFile = fopen(clavescliente, "r");
     if (clavesFile == NULL) {
         return -1; // Error al abrir el archivo
     }
@@ -91,7 +90,7 @@ int get_value_serv(int key, char *value1, int N_value2, double *V_value2, char *
 
 
 int modify_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente) {
-    FILE *clavesFile = fopen("claves.txt", "r+");
+    FILE *clavesFile = fopen(clavescliente, "r+");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
         return -1; // Error al abrir el archivo
@@ -127,7 +126,7 @@ int modify_value_serv(int key, char *value1, int N_value2, double *V_value2, cha
 }
 
 int delete_value_serv(int key, char *clavescliente) {
-    FILE *clavesFile = fopen("claves.txt", "r+");
+    FILE *clavesFile = fopen(clavescliente, "r+");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
         return -1; // Error al abrir el archivo
@@ -159,7 +158,7 @@ int delete_value_serv(int key, char *clavescliente) {
 }
 
 int exists_serv(int key,  char *clavescliente) {
-    FILE *clavesFile = fopen("claves.txt", "r");
+    FILE *clavesFile = fopen(clavescliente, "r");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
         return -1; // Error al abrir el archivo
