@@ -122,9 +122,7 @@ void delete_value_serv(int key, struct respuesta *res) {
 
 void modify_value_serv(int key, char *value1, int N_value2, char *V_value2, struct respuesta *res) {
     // Eliminar el archivo correspondiente a la clave dada
-    printf("V_value2: %s\n", V_value2);
     delete_value_serv(key, res);
-    printf("V_value2: %s\n", V_value2);
     // Llamar a set_value_serv para crear un nuevo archivo con el nuevo valor
     set_value_serv(key, value1, N_value2, V_value2, res);
     res->resultado = 0;
