@@ -2,13 +2,14 @@
 #define CLAVES_H
 
 #include <stdio.h>
+#include "mensaje.h"
 
-int init_serv(char *clavescliente);
-int set_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente);
-int get_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente);
-int modify_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente);
-int delete_value_serv(int key, char *clavescliente);
-int exists_serv(int key, char *clavescliente);
+void init_serv(struct respuesta *res);
+void set_value_serv(int key, char *value1, int N_value2, char *V_value2, struct respuesta *res);
+void get_value_serv(int key, char *value1, int *N_value2, char *V_value2, struct respuesta *res);
+void modify_value_serv(int key, char *value1, int N_value2, char *V_value2, struct respuesta *res);
+void delete_value_serv(int key, struct respuesta *res);
+void exists_serv(int key, struct respuesta *res);
 
 #endif // CLAVES_H
 

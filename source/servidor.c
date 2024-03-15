@@ -13,10 +13,11 @@ int mensaje_no_copiado = true;
 pthread_cond_t cond_mensaje;
 mqd_t q_servidor;
 
+
 void tratar_mensaje(void *mess) {
   struct peticion mensaje; /* mensaje local */
   mqd_t q_cliente;         /* cola del cliente */
-  int resultado;           /* resultado de la operación */
+  struct respuesta res; 
 
   /* el thread copia el mensaje a un mensaje local */
   pthread_mutex_lock(&mutex_mensaje);
@@ -33,28 +34,30 @@ void tratar_mensaje(void *mess) {
   /* ejecutar la petición del cliente y preparar respuesta */
   switch (mensaje.op) {
   case 0:
-    init_serv(mensaje.claves);
+    init_serv(&res);
+      printf("Resultado: %d\n", res.resultado);
+
     break;
   case 1:
     set_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
-                   mensaje.V_value2, mensaje.claves);
+                   mensaje.V_value2, &res);
     break;
 
   case 2:
-    get_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
-                   mensaje.V_value2, mensaje.claves);
+    get_value_serv(mensaje.key, mensaje.value1, &mensaje.N_value2, mensaje.V_value2, &res);
     break;
   case 3:
     modify_value_serv(mensaje.key, mensaje.value1, mensaje.N_value2,
-                      mensaje.V_value2, mensaje.claves);
+                   mensaje.V_value2, &res);
     break;
   case 4:
-    delete_value_serv(mensaje.key, mensaje.claves);
+    delete_value_serv(mensaje.key, &res);
     break;
   default:
-    exists_serv(mensaje.key, mensaje.claves);
+    exists_serv(mensaje.key, &res);
     break;
   }
+  printf("Resultado: %d\n", res.resultado);
   /* Se devuelve el resultado al cliente */
   /* Para ello se envía el resultado a su cola */
   q_cliente = mq_open(mensaje.q_name, O_WRONLY);
@@ -63,13 +66,14 @@ void tratar_mensaje(void *mess) {
     mq_close(q_servidor);
     mq_unlink("/SERVIDOR_CLAVES");
   } else {
-    if (mq_send(q_cliente, (const char *)&resultado, sizeof(int), 0) < 0) {
+    if (mq_send(q_cliente, (const char *)&res, sizeof(int), 0) < 0) {
       perror("mq_send");
       mq_close(q_servidor);
       mq_unlink("/SERVIDOR_CLAVES");
       mq_close(q_cliente);
     }
   }
+  
   pthread_exit(0);
 }
 

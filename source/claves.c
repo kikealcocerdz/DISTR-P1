@@ -35,7 +35,6 @@ int init() {
     perror("mq_open CLIENTE");
     return -1;
   }
-  printf("Colas cliente creadas\n");
 
   q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
@@ -43,13 +42,9 @@ int init() {
     perror("mq_open SERVIDOR");
     return -1;
   }
-  printf("Cola servidor creadas\n");
 
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
-  char claves[MAXSIZE];
-  sprintf(claves, "%d.txt", getpid());
-  strcpy(pet.claves, claves);
   pet.op = 0;
   // ENVIAMOS EL MENSAJE
   if (mq_send(q_servidor, (const char *)&pet, sizeof(pet), 0) < 0) {
@@ -57,13 +52,11 @@ int init() {
     return -1;
   }
 
-  printf("Mensaje enviado\n");
   // RECIBIMOS EL MENSAJE
   if (mq_receive(q_cliente, (char *)&res, sizeof(int), 0) < 0) {
     perror("mq_recv");
     return -1;
   }
-  printf("Mensaje recibido\n");
 
   // CERRAMOS LAS COLAS
   mq_close(q_servidor);
@@ -88,13 +81,12 @@ int set_value(int key, char *value1, int N_value2, double *V_value2) {
   // CREACION DE LA COLA DE MENSAJES,PONGO EL PID POR SI HAY VARIOS CLIENTES A
   // LA VEZ
 
-sprintf(colalocal,  "/Cola-%d", getpid());
+  sprintf(colalocal,  "/Cola-%d", getpid());
   q_cliente = mq_open(colalocal, O_CREAT|O_RDONLY, 0700, &attr);
   if (q_cliente == -1) {
     perror("mq_open CLIENTE");
     return -1;
   }
-  printf("Colas cliente creadas\n");
 
   q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
@@ -102,18 +94,20 @@ sprintf(colalocal,  "/Cola-%d", getpid());
     perror("mq_open SERVIDOR");
     return -1;
   }
-  printf("Cola servidor creadas\n");
 
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
   pet.op = 1;
   pet.key = key;
-  char claves[MAXSIZE];
-  sprintf(claves, "%d.txt", getpid());
-  strcpy(pet.claves, claves);
-  strcpy(pet.value1, value1); // SE PUEDE HACER ASI
+  strcpy(pet.value1, value1); 
   pet.N_value2 = N_value2;
-  memcpy(pet.V_value2, V_value2, sizeof(V_value2));
+  char aux[MAXSIZE];
+  char cadena[MAXSIZE] = " ";
+  for (int i = 0; i < N_value2; i++) {
+    sprintf(aux, "%lf ", V_value2[i]);
+    strcat(cadena, aux);
+  }
+  strcpy(pet.V_value2, cadena);
   // ENVIAMOS EL MENSAJE
   if (mq_send(q_servidor, (const char *)&pet, sizeof(pet), 0) < 0) {
     perror("mq_send");
@@ -154,7 +148,6 @@ int get_value(int key, char *value1, int *N_value2, double *V_value2) {
     perror("mq_open CLIENTE");
     return -1;
   }
-  printf("Colas cliente creadas\n");
 
   q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
@@ -162,13 +155,9 @@ int get_value(int key, char *value1, int *N_value2, double *V_value2) {
     perror("mq_open SERVIDOR");
     return -1;
   }
-  printf("Cola servidor creadas\n");
 
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
-  char claves[MAXSIZE];
-  sprintf(claves, "%d.txt", getpid());
-  strcpy(pet.claves, claves);
   pet.op = 2;
   pet.key = key;
   strcpy(pet.value1, value1);
@@ -218,7 +207,6 @@ int modify_value(int key, char *value1, int N_value2, double *V_value2) {
     perror("mq_open CLIENTE");
     return -1;
   }
-  printf("Colas cliente creadas\n");
 
   q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
@@ -226,17 +214,19 @@ int modify_value(int key, char *value1, int N_value2, double *V_value2) {
     perror("mq_open SERVIDOR");
     return -1;
   }
-  printf("Cola servidor creadas\n");
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
-  char claves[MAXSIZE];
-  sprintf(claves, "%d.txt", getpid());
-  strcpy(pet.claves, claves);
   pet.op = 3;
   pet.key = key;
-  strcpy(pet.value1, value1);
+  strcpy(pet.value1, value1); // SE PUEDE HACER ASI
   pet.N_value2 = N_value2;
-  memcpy(pet.V_value2, V_value2, sizeof(V_value2));
+  char aux[MAXSIZE];
+  char cadena[MAXSIZE] = " ";
+  for (int i = 0; i < N_value2; i++) {
+    sprintf(aux, "%lf ", V_value2[i]);
+    strcat(cadena, aux);
+  }
+  strcpy(pet.V_value2, cadena);
   // ENVIAMOS EL MENSAJE
   if (mq_send(q_servidor, (const char *)&pet, sizeof(pet), 0) < 0) {
     perror("mq_send");
@@ -255,7 +245,7 @@ int modify_value(int key, char *value1, int N_value2, double *V_value2) {
 }
 
 int delete_key(int key) {
-    printf("DeleteKey empezado\n");
+  printf("DeleteKey empezado\n");
   mqd_t q_servidor; /* cola de mensajes del servidor */
   mqd_t q_cliente;  /* cola de mensajes del cliente */
 
@@ -277,7 +267,6 @@ int delete_key(int key) {
     perror("mq_open CLIENTE");
     return -1;
   }
-  printf("Colas cliente creadas\n");
 
   q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
@@ -285,13 +274,9 @@ int delete_key(int key) {
     perror("mq_open SERVIDOR");
     return -1;
   }
-  printf("Cola servidor creadas\n");
 
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
-  char claves[MAXSIZE];
-  sprintf(claves, "%d.txt", getpid());
-  strcpy(pet.claves, claves);
   pet.op = 4;
   pet.key = key;
 
@@ -335,7 +320,6 @@ int exist(int key) {
     perror("mq_open CLIENTE");
     return -1;
   }
-  printf("Colas cliente creadas\n");
 
   q_servidor = mq_open("/SERVIDOR_CLAVES", O_CREAT | O_WRONLY, 0700, NULL);
   if (q_servidor == -1) {
@@ -343,12 +327,8 @@ int exist(int key) {
     perror("mq_open SERVIDOR");
     return -1;
   }
-  printf("Cola servidor creadas\n");
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
-  char claves[MAXSIZE];
-  sprintf(claves, "%d.txt", getpid());
-  strcpy(pet.claves, claves);
   pet.op = 5;
   pet.key = key;
 

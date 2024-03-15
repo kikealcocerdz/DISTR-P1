@@ -1,4 +1,6 @@
 #define MAXSIZE 256
+#ifndef MENSAJE_H
+#define MENSAJE_H
 // . . .
 
 struct peticion {
@@ -6,7 +8,7 @@ struct peticion {
   int key;              /* clave */
   char value1[MAXSIZE]; /* valor 1 */
   int N_value2;         /* dimensión del vector V_value2 [1-32] */
-  double V_value2[32];  /* vector de doubles [32] */
+  char V_value2[32];  /* vector de doubles [32] */
   char q_name[MAXSIZE]; /* nombre de la cola de respuesta */
   int resultado; /* resultado de la operación ,esdecir si ha salido bien o no (0
                     o -1)*/
@@ -18,5 +20,7 @@ struct respuesta {
                     o -1)*/
   char value1[MAXSIZE]; /* valor 1 */
   int N_value2;         /* dimensión del vector V_value2 [1-32] */
-  double V_value2[32];  /* vector de doubles [32] */
+  char V_value2[32];  /* vector de doubles [32] */
 };
+
+#endif // MENSAJE_H

@@ -1,178 +1,156 @@
 #include <stdio.h>
 #include "clavesservidor.h"
-#include "mensaje.h"
 #include <mqueue.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <dirent.h>
 
 int claves;
 int key_leida;
 char valor1[100];
 int N_value2;
 double V_value2[100];
+struct respuesta res; 
 
-int init_serv(char *clavescliente) {
-    FILE *claves = fopen(clavescliente, "w+");
-    if (claves == NULL) {
-        perror("Error al abrir el archivo");
-        return -1;  // Error al abrir el archivo
+void init_serv(struct respuesta *res) {
+    // Eliminar el directorio /claves si existe
+    if (access("./claves", F_OK) == 0) {
+        DIR *dir = opendir("./claves");
+        if (dir) {
+            // Si el directorio está lleno, elimina su contenido
+            struct dirent *entry;
+            while ((entry = readdir(dir)) != NULL) {
+                if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) {
+                    char path[1024];
+                    snprintf(path, sizeof(path), "%s/%s", "./claves", entry->d_name);
+                    remove(path);
+                }
+            }
+            closedir(dir);
+        }
+        // Eliminar el directorio /claves
+        if (remove("./claves") == -1) {
+            res->resultado = -1;
+            return;  // Error al eliminar el directorio
+        }
     }
-    fclose(claves);
-    // Truncate the file using the truncate system call
-    if (truncate(clavescliente, 0) == -1) {
-        perror("Error al truncar el archivo");
-        return -1;  // Error al truncar el archivo
+    // Crear el directorio /claves
+    if (mkdir("./claves", 0777) == -1) {
+        res->resultado = -1;
+        return;   // Error al crear el directorio
     }
+
     printf("Inicialización exitosa\n");
-    return 0;  // Inicialización exitosa
+    res->resultado = 0;
+    return;  // Error al eliminar el directorio // Inicialización exitosa
 }
 
-
-int set_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente) {
-    FILE *clavesFile = fopen(clavescliente, "a+");
+void set_value_serv(int key, char *value1, int N_value2, char *V_value2, struct respuesta *res) {
+    char filename[20]; // Tamaño suficiente para almacenar el valor de la clave como una cadena
+    sprintf(filename, "./claves/%d.txt", key); // Convertir la clave en una cadena y añadir el directorio
+    FILE *checkExistFile = fopen(filename, "r");
+    if (checkExistFile != NULL) {
+        fclose(checkExistFile);
+        res->resultado = -1;
+        return;
+    }
+    
+    FILE *clavesFile = fopen(filename, "w+");
     if (clavesFile == NULL) {
         perror("Error al abrir el archivo");
-        return -1; // Error al abrir el archivo
+        res->resultado = -1;
+        return;
     }
 
-    // Check if the key already exists
-    while (fscanf(clavesFile, "%d %s %d", &key_leida, valor1, &N_value2) == 3) {
-        if (key_leida == key) {
-            fclose(clavesFile);
-            return -1; // Clave encontrada, error ya que debe ser única
-        }
-    }
-
-    // Move the file pointer to the end for appending
-    fseek(clavesFile, 0, SEEK_END);
-
-    // Insert the new key-value pair
-    fprintf(clavesFile, "%d %s %d\n", key, value1, N_value2);
-
+    // Insertar la nueva clave-valor
+    fprintf(clavesFile, "%d %s %d %s", key, value1, N_value2, V_value2); // Agregar la clave, valor1, y V_value2 al archivo
+    fprintf(clavesFile, "\n"); // Nueva línea al final
     fclose(clavesFile);
-    printf("Clave insertada con éxito\n");
-    return 0; // Inserción exitosa
+    res->resultado = 0;
+    return;
 }
 
-int get_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente)  {
-    FILE *clavesFile = fopen(clavescliente, "r");
+void get_value_serv(int key, char *value1, int *N_value2, char *V_value2, struct respuesta *res) {
+    char filename[20]; // Tamaño suficiente para almacenar el valor de la clave como una cadena
+    sprintf(filename, "./claves/%d.txt", key); // Convertir la clave en una cadena y añadir el directorio
+    FILE *clavesFile = fopen(filename, "r");
     if (clavesFile == NULL) {
-        return -1; // Error al abrir el archivo
+        res->resultado = -1;
+        return;
     }
 
-    while (fscanf(clavesFile, "%d %s %d", &key_leida, valor1, &N_value2) == 3) {
-        if (key_leida == key) {
-            strcpy(value1, valor1);
-            N_value2 = N_value2;
-            // Assuming V_value2 is an array, copy it
-            for (int i = 0; i < N_value2; i++) {
-                fscanf(clavesFile, "%lf", &V_value2[i]);
-            }
-            fclose(clavesFile);
-            printf("Clave leída con éxito: %s, %d, [", value1, N_value2);
-            for (int i = 0; i < N_value2; i++) {
-                printf("%lf ", V_value2[i]);
-            }
-            printf("]\n");
-            return 0; // Lectura exitosa
-        }
+    // Leer el contenido del archivo y almacenarlo en las variables
+    if (fscanf(clavesFile, "%d %s %d %s", &key, value1, N_value2, V_value2) != 4) {
+        fclose(clavesFile);
+        res->resultado = -1;
+        return;
     }
 
+    // Cerrar el archivo
     fclose(clavesFile);
-    return -1; // Clave no encontrada
+    res->resultado = 0;
+    strcpy(res->value1, value1);
+    res->N_value2 = *N_value2;
+    strcpy(res->V_value2, V_value2);
+    return;
 }
 
+void delete_value_serv(int key, struct respuesta *res) {
+    char filename[20]; // Tamaño suficiente para almacenar el valor de la clave como una cadena
+    sprintf(filename, "./claves/%d.txt", key); // Convertir la clave en una cadena y añadir el directorio
 
-int modify_value_serv(int key, char *value1, int N_value2, double *V_value2, char *clavescliente) {
-    FILE *clavesFile = fopen(clavescliente, "r+");
-    if (clavesFile == NULL) {
-        perror("Error al abrir el archivo");
-        return -1; // Error al abrir el archivo
+    // Verificar si el archivo existe
+    if (access(filename, F_OK) != 0) {
+        res->resultado = -1;
+        return;
     }
 
-    while (fscanf(clavesFile, "%d %s %d", &key_leida, valor1, &N_value2) == 3) {
-        if (key_leida == key) {
-            // Calculate the length of the original line
-            size_t originalLineLength = strlen(valor1) + strlen(value1) + 10; // Adjust as needed
-
-            // Allocate memory for the entire line
-            char *line = (char *)malloc(originalLineLength);
-
-            // Read the entire line
-            fseek(clavesFile, -originalLineLength, SEEK_CUR);
-            fgets(line, originalLineLength, clavesFile);
-
-            // Modify the value in memory
-            sprintf(line, "%d %s %d", key, value1, N_value2);
-            // Append the modified line to the end of the file
-            fprintf(clavesFile, "%s", line);
-
-            free(line);
-
-            fclose(clavesFile);
-            printf("Modificación exitosa\n");
-            return 0; // Modificación exitosa
-        }
+    // Eliminar el archivo
+    if (unlink(filename) == -1) {
+        res->resultado = -1;
+        return;
     }
 
-    fclose(clavesFile);
-    return -1; // Clave no encontrada
+    res->resultado = 0;
+    return;
 }
 
-int delete_value_serv(int key, char *clavescliente) {
-    FILE *clavesFile = fopen(clavescliente, "r+");
-    if (clavesFile == NULL) {
-        perror("Error al abrir el archivo");
-        return -1; // Error al abrir el archivo
-    }
-
-    FILE *tempFile = tmpfile(); // Create a temporary file for rewriting
-
-    while (fscanf(clavesFile, "%d %s %d", &key_leida, valor1, &N_value2) == 3) {
-        if (key_leida != key) {
-            fprintf(tempFile, "%d %s %d\n", key_leida, valor1, N_value2);
-        }
-    }
-
-    // Rewind both files
-    rewind(clavesFile);
-    rewind(tempFile);
-
-    // Copy contents from tempFile to clavesFile
-    int c;
-    while ((c = fgetc(tempFile)) != EOF) {
-        fputc(c, clavesFile);
-    }
-
-    fclose(clavesFile);
-    fclose(tempFile);
-
-    printf("Eliminación exitosa\n");
-    return 0; // Eliminación exitosa
+void modify_value_serv(int key, char *value1, int N_value2, char *V_value2, struct respuesta *res) {
+    // Eliminar el archivo correspondiente a la clave dada
+    printf("V_value2: %s\n", V_value2);
+    delete_value_serv(key, res);
+    printf("V_value2: %s\n", V_value2);
+    // Llamar a set_value_serv para crear un nuevo archivo con el nuevo valor
+    set_value_serv(key, value1, N_value2, V_value2, res);
+    res->resultado = 0;
+    res->N_value2 = N_value2;
+    return;
 }
 
-int exists_serv(int key,  char *clavescliente) {
-    FILE *clavesFile = fopen(clavescliente, "r");
-    if (clavesFile == NULL) {
-        perror("Error al abrir el archivo");
-        return -1; // Error al abrir el archivo
-    }
+void exists_serv(int key, struct respuesta *res) {
+    char filename[20]; // Tamaño suficiente para almacenar el valor de la clave como una cadena
+    sprintf(filename, "./claves/%d.txt", key); // Convertir la clave en una cadena y añadir el directorio
 
+    FILE *clavesFile = fopen(filename, "r");
+    if (clavesFile == NULL) {
+        res->resultado = 0;
+        return;
+    }
     while (fscanf(clavesFile, "%d %s %d", &key_leida, valor1, &N_value2) == 3) {
         if (key_leida == key) {
             fclose(clavesFile);
             printf("Clave encontrada\n");
-            return 0; // Clave encontrada
+            res->resultado = 1;
+            return;
         }
     }
     
-    printf("Clave NO encontrada\n");
     fclose(clavesFile);
-    return -1; // Clave no encontrada
+    res->resultado = -1;
+    return;
 }
