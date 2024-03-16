@@ -94,7 +94,12 @@ int set_value(int key, char *value1, int N_value2, double *V_value2) {
     perror("mq_open SERVIDOR");
     return -1;
   }
-
+  if (strlen(value1) >256){//256 en vez de 255 pq incluimos en /0
+    return -1;
+  }
+  if (N_value2 > 32 || N_value2 < 0){
+    return -1;
+  }
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
   pet.op = 1;
@@ -155,6 +160,13 @@ int get_value(int key, char *value1, int *N_value2, double *V_value2) {
     perror("mq_open SERVIDOR");
     return -1;
   }
+  //Validamos los datos
+  if (strlen(value1) >256){//256 en vez de 255 pq incluimos en /0
+    return -1;
+  }
+  if ( *N_value2 > 32 || *N_value2 < 0){
+    return -1;
+  }
 
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
@@ -212,6 +224,13 @@ int modify_value(int key, char *value1, int N_value2, double *V_value2) {
   if (q_servidor == -1) {
     mq_close(q_cliente);
     perror("mq_open SERVIDOR");
+    return -1;
+  }
+  //Validamos los datos
+  if (strlen(value1) >256){//256 en vez de 255 pq incluimos en /0
+    return -1;
+  }
+  if( N_value2 > 32 || N_value2 < 0){
     return -1;
   }
   // RELLENAMOS EL MENSAJE
@@ -274,7 +293,7 @@ int delete_key(int key) {
     perror("mq_open SERVIDOR");
     return -1;
   }
-
+  
   // RELLENAMOS EL MENSAJE
   strcpy(pet.q_name, colalocal);
   pet.op = 4;
