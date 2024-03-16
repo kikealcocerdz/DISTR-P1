@@ -36,23 +36,22 @@ void init_serv(struct respuesta *res) {
         // Eliminar el directorio /claves
         if (remove("./claves") == -1) {
             res->resultado = -1;
-            return;  // Error al eliminar el directorio
+            return; 
         }
     }
     // Crear el directorio /claves
     if (mkdir("./claves", 0777) == -1) {
         res->resultado = -1;
-        return;   // Error al crear el directorio
+        return;  
     }
 
-    printf("Inicialización exitosa\n");
     res->resultado = 0;
-    return;  // Error al eliminar el directorio // Inicialización exitosa
+    return; 
 }
 
 void set_value_serv(int key, char *value1, int N_value2, char *V_value2, struct respuesta *res) {
-    char filename[20]; // Tamaño suficiente para almacenar el valor de la clave como una cadena
-    sprintf(filename, "./claves/%d.txt", key); // Convertir la clave en una cadena y añadir el directorio
+    char filename[20]; 
+    sprintf(filename, "./claves/%d.txt", key);  // Convertimos la clave en string y añadimos el directorio
     FILE *checkExistFile = fopen(filename, "r");
     if (checkExistFile != NULL) {
         fclose(checkExistFile);
@@ -68,16 +67,16 @@ void set_value_serv(int key, char *value1, int N_value2, char *V_value2, struct 
     }
 
     // Insertar la nueva clave-valor
-    fprintf(clavesFile, "%d %s %d %s", key, value1, N_value2, V_value2); // Agregar la clave, valor1, y V_value2 al archivo
-    fprintf(clavesFile, "\n"); // Nueva línea al final
+    fprintf(clavesFile, "%d %s %d %s", key, value1, N_value2, V_value2); 
+    fprintf(clavesFile, "\n"); 
     fclose(clavesFile);
     res->resultado = 0;
     return;
 }
 
 void get_value_serv(int key, char *value1, int *N_value2, char *V_value2, struct respuesta *res) {
-    char filename[20]; // Tamaño suficiente para almacenar el valor de la clave como una cadena
-    sprintf(filename, "./claves/%d.txt", key); // Convertir la clave en una cadena y añadir el directorio
+    char filename[20]; 
+    sprintf(filename, "./claves/%d.txt", key);
     FILE *clavesFile = fopen(filename, "r");
     if (clavesFile == NULL) {
         res->resultado = -1;
@@ -91,7 +90,6 @@ void get_value_serv(int key, char *value1, int *N_value2, char *V_value2, struct
         return;
     }
 
-    // Cerrar el archivo
     fclose(clavesFile);
     res->resultado = 0;
     strcpy(res->value1, value1);
@@ -101,8 +99,8 @@ void get_value_serv(int key, char *value1, int *N_value2, char *V_value2, struct
 }
 
 void delete_value_serv(int key, struct respuesta *res) {
-    char filename[20]; // Tamaño suficiente para almacenar el valor de la clave como una cadena
-    sprintf(filename, "./claves/%d.txt", key); // Convertir la clave en una cadena y añadir el directorio
+    char filename[20]; 
+    sprintf(filename, "./claves/%d.txt", key); 
 
     // Verificar si el archivo existe
     if (access(filename, F_OK) != 0) {
@@ -110,7 +108,6 @@ void delete_value_serv(int key, struct respuesta *res) {
         return;
     }
 
-    // Eliminar el archivo
     if (unlink(filename) == -1) {
         res->resultado = -1;
         return;
@@ -121,7 +118,6 @@ void delete_value_serv(int key, struct respuesta *res) {
 }
 
 void modify_value_serv(int key, char *value1, int N_value2, char *V_value2, struct respuesta *res) {
-    // Eliminar el archivo correspondiente a la clave dada
     delete_value_serv(key, res);
     // Llamar a set_value_serv para crear un nuevo archivo con el nuevo valor
     set_value_serv(key, value1, N_value2, V_value2, res);
@@ -131,8 +127,8 @@ void modify_value_serv(int key, char *value1, int N_value2, char *V_value2, stru
 }
 
 void exists_serv(int key, struct respuesta *res) {
-    char filename[20]; // Tamaño suficiente para almacenar el valor de la clave como una cadena
-    sprintf(filename, "./claves/%d.txt", key); // Convertir la clave en una cadena y añadir el directorio
+    char filename[20]; 
+    sprintf(filename, "./claves/%d.txt", key); 
 
     FILE *clavesFile = fopen(filename, "r");
     if (clavesFile == NULL) {
@@ -142,7 +138,6 @@ void exists_serv(int key, struct respuesta *res) {
     while (fscanf(clavesFile, "%d %s %d", &key_leida, valor1, &N_value2) == 3) {
         if (key_leida == key) {
             fclose(clavesFile);
-            printf("Clave encontrada\n");
             res->resultado = 1;
             return;
         }

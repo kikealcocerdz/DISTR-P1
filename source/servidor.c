@@ -35,7 +35,6 @@ void tratar_mensaje(void *mess) {
   switch (mensaje.op) {
   case 0:
     init_serv(&res);
-      printf("Resultado: %d\n", res.resultado);
 
     break;
   case 1:
@@ -57,7 +56,7 @@ void tratar_mensaje(void *mess) {
     exists_serv(mensaje.key, &res);
     break;
   }
-  printf("Resultado: %d\n", res.resultado);
+  printf("Resultado: %d de la función %d \n", res.resultado, mensaje.op);
   /* Se devuelve el resultado al cliente */
   /* Para ello se envía el resultado a su cola */
   q_cliente = mq_open(mensaje.q_name, O_WRONLY);

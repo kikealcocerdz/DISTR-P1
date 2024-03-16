@@ -16,8 +16,7 @@ struct peticion {
 };
 
 struct respuesta {
-  int resultado; /* resultado de la operación ,esdecir si ha salido bien o no (0
-                    o -1)*/
+  int resultado; /* resultado de la operación ,es decir si ha salido bien o no (0 o -1)*/
   char value1[MAXSIZE]; /* valor 1 */
   int N_value2;         /* dimensión del vector V_value2 [1-32] */
   char V_value2[32];  /* vector de doubles [32] */
