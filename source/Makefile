@@ -15,7 +15,7 @@ claves.o: claves.c
 clean:
 	rm -f claves.o libclaves.so cliente servidor
 	rm -f /dev/mqueue/*
-
+	
 run:
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/source/libclaves.so
 
